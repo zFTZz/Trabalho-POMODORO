@@ -2,7 +2,7 @@
 
 Aplicação web de gestão de foco baseada na técnica Pomodoro, voltada a estudantes que querem organizar ciclos de estudo. Funciona inteiramente no navegador, sem backend, e persiste os dados em **Local Storage**.
 
-Trabalho da disciplina **Desenvolvimento Web (DevWeb)**, seguindo o *Documento de Requisitos de Software — Aplicação Web de Gestão de Foco (Pomodoro)*.
+Trabalho da disciplina **Desenvolvimento Web (DevWeb)**, seguindo o *Documento de Requisitos de Software: Aplicação Web de Gestão de Foco (Pomodoro)*.
 
 ---
 
@@ -129,8 +129,6 @@ A separação segue o requisito RNF-09: **domínio** (regras), **persistência**
 
 ## Interpretações e decisões de requisitos
 
-Alguns pontos do documento são ambíguos ou se contradizem. A equipe adotou as seguintes decisões:
-
 1. **Quantidade de ciclos por sessão (`CICLOS_POR_SESSAO = 4`).** O documento exige o status `concluida` (RN-08 e UC10), mas não define quantos ciclos formam uma sessão. Adotamos 4 ciclos, o "conjunto" clássico da técnica. A sessão é concluída ao terminar a última pausa do último ciclo. O valor está em `src/dominio/constantes.ts` e pode ser alterado.
 
 2. **Contagem de ciclos com pulos (RN-03).** O ciclo só avança quando uma pausa termina naturalmente. Pular fases nunca altera a contagem. Consequência: pular uma pausa retorna ao foco do mesmo ciclo, e não ao início do próximo. Foi a leitura literal de RN-03.
@@ -162,8 +160,6 @@ Alguns pontos do documento são ambíguos ou se contradizem. A equipe adotou as 
 ---
 
 ## Equipe e divisão de responsabilidades
-
-> Preencher com os nomes reais da equipe antes da entrega.
 
 | Papel | Integrante | Responsabilidades |
 |-------|-----------|-------------------|
