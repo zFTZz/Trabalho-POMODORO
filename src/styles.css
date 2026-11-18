@@ -1,0 +1,1065 @@
+/* Foco Pomodoro
+   Identidade: caderno de sessões. Papel off-white, tinta quase preta, um único
+   acento vermelho no que está ativo, serifa editorial nos títulos e marcas de
+   contagem como motivo. Dial: ENERGY 1 / RHYTHM 2 / MOTION 1.
+
+   Cada bloco tem o motivo escrito em uma linha. Cor sem motivo não entra.
+*/
+
+/* Tokens. Papel e tinta são os dois núcleos; vermelho e verde são funcionais. */
+:root {
+  --papel: #f4efe7;
+  --superficie: #fbf8f3;
+  --superficie-suave: #ebe3d6;
+  --tinta: #1a1714;
+  --tinta-suave: #5c544b;
+  --borda: #e0d7c9;
+  --borda-controle: #8a8073;
+  --trilho: #ece5d9;
+
+  --acento: #b3261e;
+  --acento-tenue: #f6e2dd;
+  --sucesso: #1f6b4f;
+  --sucesso-tenue: #e4efe8;
+  --perigo: #8a2420;
+  --perigo-tenue: #fdf4f2;
+  --aviso-tenue: #fbf0da;
+  --aviso-borda: #d9b775;
+
+  /* 3 degraus de raio: cartão, controle, etiqueta. Pílula não existe. */
+  --raio-cartao: 12px;
+  --raio-controle: 8px;
+  --raio-etiqueta: 4px;
+
+  --serifa: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
+  --sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  color-scheme: light;
+  font-family: var(--sans);
+  line-height: 1.5;
+  color: var(--tinta);
+  background: var(--papel);
+}
+
+/* Tema escuro: mesmas relações, não as mesmas cores. Acento clareia para
+   manter 6.95:1 sobre a superfície. */
+:root[data-tema='escuro'] {
+  --papel: #16130f;
+  --superficie: #211c17;
+  --superficie-suave: #2c261f;
+  --tinta: #f2ebdf;
+  --tinta-suave: #bdb2a3;
+  --borda: #332c24;
+  --borda-controle: #7a6f60;
+  --trilho: #2c261f;
+
+  --acento: #f08a7e;
+  --acento-tenue: #4a3630;
+  --sucesso: #7fcba8;
+  --sucesso-tenue: #24382f;
+  --perigo: #f0b4ac;
+  --perigo-tenue: #3d2a27;
+  --aviso-tenue: #3a3226;
+  --aviso-borda: #7a6640;
+
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema='claro']) {
+    --papel: #16130f;
+    --superficie: #211c17;
+    --superficie-suave: #2c261f;
+    --tinta: #f2ebdf;
+    --tinta-suave: #bdb2a3;
+    --borda: #332c24;
+    --borda-controle: #7a6f60;
+    --trilho: #2c261f;
+
+    --acento: #f08a7e;
+    --acento-tenue: #4a3630;
+    --sucesso: #7fcba8;
+    --sucesso-tenue: #24382f;
+    --perigo: #f0b4ac;
+    --perigo-tenue: #3d2a27;
+    --aviso-tenue: #3a3226;
+    --aviso-borda: #7a6640;
+
+    color-scheme: dark;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+/* Camada base de cursores, aplicada uma vez. Texto e arrasto ficam de fora. */
+a[href],
+button,
+summary,
+select,
+label[for],
+label:has(> input[type='checkbox'], > input[type='radio']),
+[role='button'],
+[role='link'],
+[role='tab'],
+[role='switch'],
+input[type='checkbox'],
+input[type='radio'],
+input[type='file'],
+input[type='submit'],
+input[type='button'],
+input[type='reset'],
+input[type='range'],
+input[type='color'] {
+  cursor: pointer;
+}
+
+:disabled,
+[aria-disabled='true'] {
+  cursor: not-allowed;
+}
+
+input[type='text'],
+input[type='number'],
+input[type='email'],
+input[type='search'],
+input[type='password'],
+textarea {
+  cursor: text;
+}
+
+/* Anel de foco visível nos dois temas, 6:1 contra a superfície. */
+:focus-visible {
+  outline: 3px solid var(--acento);
+  outline-offset: 2px;
+}
+
+/* ---------- Estrutura ---------- */
+
+.app {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 20px 16px 48px;
+}
+
+.link-pular {
+  position: absolute;
+  left: -9999px;
+  top: 8px;
+  z-index: 10;
+  padding: 10px 14px;
+  background: var(--superficie);
+  color: var(--tinta);
+  border: 1px solid var(--borda-controle);
+  border-radius: var(--raio-controle);
+}
+
+.link-pular:focus {
+  left: 16px;
+}
+
+.cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 4px 20px;
+  border-bottom: 1px solid var(--borda);
+  margin-bottom: 20px;
+}
+
+.cabecalho__texto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Serifa nos títulos: é o que dá voz de caderno ao app. */
+.cabecalho__titulo {
+  font-family: var(--serifa);
+  font-size: clamp(1.6rem, 3.4vw, 2.15rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+
+.cabecalho__subtitulo {
+  color: var(--tinta-suave);
+  font-size: 0.95rem;
+}
+
+.cabecalho__ferramentas {
+  display: flex;
+  gap: 8px;
+}
+
+/* Botão de tema: ação de estado, então carrega o próprio rótulo visível. */
+.botao-tema {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 14px;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--tinta);
+  background: var(--superficie);
+  border: 1px solid var(--borda-controle);
+  border-radius: var(--raio-controle);
+}
+
+.botao-tema:hover {
+  background: var(--superficie-suave);
+}
+
+.grade {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'timer'
+    'tarefas'
+    'presets';
+  align-items: start;
+}
+
+.area-timer {
+  grid-area: timer;
+}
+
+.area-tarefas {
+  grid-area: tarefas;
+}
+
+.area-presets {
+  grid-area: presets;
+  min-width: 0;
+}
+
+@media (min-width: 960px) {
+  .grade {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+    grid-template-areas:
+      'timer tarefas'
+      'presets tarefas';
+  }
+
+  .area-tarefas {
+    position: sticky;
+    top: 20px;
+    max-height: calc(100dvh - 40px);
+    overflow: auto;
+  }
+}
+
+/* Cartão sem sombra: a borda separa, e a sombra fica só no diálogo. */
+.cartao {
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-cartao);
+  padding: 22px;
+  min-width: 0;
+}
+
+.cartao__cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.cartao__titulo {
+  font-family: var(--serifa);
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.cartao__subtitulo,
+.ajuda,
+.campo__dica {
+  color: var(--tinta-suave);
+  font-size: 0.9rem;
+}
+
+.ajuda {
+  margin-bottom: 14px;
+  max-width: 60ch;
+}
+
+.vazio {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--tinta-suave);
+  padding: 20px;
+  background: var(--superficie-suave);
+  border-radius: var(--raio-controle);
+  font-size: 0.95rem;
+}
+
+.vazio__titulo {
+  color: var(--tinta);
+  font-weight: 600;
+}
+
+/* Avisos de interface (erro de persistência, estado vazio, retorno de ação). */
+.recado {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-controle);
+  font-size: 0.95rem;
+}
+
+.recado--erro {
+  background: var(--perigo-tenue);
+  border-color: var(--perigo);
+  color: var(--perigo);
+}
+
+.recado--info {
+  background: var(--superficie-suave);
+  color: var(--tinta);
+}
+
+.recado--sucesso {
+  background: var(--sucesso-tenue);
+  border-color: var(--sucesso);
+  color: var(--tinta);
+}
+
+.recado__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Aviso inline curto dentro de um cartão. */
+.aviso-inline {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  background: var(--aviso-tenue);
+  border: 1px solid var(--aviso-borda);
+  color: var(--tinta);
+  border-radius: var(--raio-controle);
+  padding: 10px 12px;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+}
+
+/* ---------- Avisos flutuantes ---------- */
+
+.avisos:empty {
+  display: none;
+}
+
+.avisos {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--raio-controle);
+  border: 1px solid var(--borda);
+  background: var(--superficie);
+}
+
+/* Cor nunca sozinha: cada tipo carrega rótulo em texto. */
+.aviso__tipo {
+  flex: 0 0 auto;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding-top: 2px;
+  text-transform: none;
+}
+
+.aviso--sucesso .aviso__tipo {
+  color: var(--sucesso);
+}
+
+.aviso--erro {
+  border-color: var(--perigo);
+  background: var(--perigo-tenue);
+}
+
+.aviso--erro .aviso__tipo,
+.aviso--erro .aviso__texto {
+  color: var(--perigo);
+}
+
+.aviso--info .aviso__tipo {
+  color: var(--tinta-suave);
+}
+
+.aviso__texto {
+  flex: 1;
+  font-size: 0.95rem;
+}
+
+.aviso__fechar {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  margin: -8px -8px -8px 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 1.2rem;
+  line-height: 1;
+  border-radius: var(--raio-controle);
+}
+
+.aviso__fechar:hover {
+  background: var(--superficie-suave);
+}
+
+/* ---------- Temporizador ---------- */
+
+.temporizador {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  text-align: center;
+  padding: 4px 0 0;
+}
+
+.temporizador--vazio {
+  gap: 12px;
+  padding: 20px 8px;
+}
+
+.temporizador__vazio-titulo {
+  font-family: var(--serifa);
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.temporizador__vazio-texto {
+  color: var(--tinta-suave);
+  max-width: 44ch;
+}
+
+/* Rótulo de fase em caixa de frase, com o acento só aqui. */
+.temporizador__fase {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--serifa);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--tinta);
+}
+
+.temporizador__fase-marca {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--acento);
+}
+
+.temporizador--pausa .temporizador__fase-marca {
+  background: transparent;
+  border: 2px solid var(--acento);
+}
+
+.temporizador__status {
+  color: var(--tinta-suave);
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Único ponto focal da tela. Sem opacidade: pausa se lê no rótulo e no botão. */
+.temporizador__tempo {
+  font-family: var(--serifa);
+  font-size: clamp(2.75rem, min(15vw, 22vh), 6.5rem);
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.temporizador__vazio .botao {
+  margin-top: 4px;
+}
+
+.temporizador__ciclo {
+  color: var(--tinta-suave);
+  font-size: 0.95rem;
+}
+
+/* Motivo de identidade: uma marca por ciclo do set, com o feito preenchido. */
+.marcas-ciclo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.marca-ciclo {
+  width: 14px;
+  height: 22px;
+  border: 1px solid var(--borda-controle);
+  border-radius: 2px;
+  background: transparent;
+}
+
+.marca-ciclo--feita {
+  background: var(--tinta);
+  border-color: var(--tinta);
+}
+
+/* Barra: preenchimento em tinta (14:1), extensão marcada pela borda do trilho. */
+.progresso {
+  width: min(420px, 100%);
+  height: 10px;
+  background: var(--trilho);
+  border: 1px solid var(--borda-controle);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progresso__barra {
+  height: 100%;
+  background: var(--tinta);
+  transition: width 0.3s linear;
+}
+
+.controles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}
+
+/* ---------- Botões ---------- */
+
+.botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: var(--raio-controle);
+  border: 1px solid transparent;
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.botao:disabled {
+  opacity: 0.45;
+}
+
+.botao--primario {
+  background: var(--tinta);
+  color: var(--papel);
+}
+
+.botao--primario:hover:not(:disabled) {
+  background: var(--tinta-suave);
+}
+
+.botao--secundario {
+  background: var(--superficie);
+  color: var(--tinta);
+  border-color: var(--borda-controle);
+}
+
+.botao--secundario:hover:not(:disabled) {
+  background: var(--superficie-suave);
+}
+
+.botao--perigo {
+  background: var(--perigo);
+  color: var(--superficie);
+}
+
+.botao--perigo:hover:not(:disabled) {
+  filter: brightness(0.9);
+}
+
+.botao--perigo-suave {
+  background: transparent;
+  color: var(--perigo);
+  border-color: var(--perigo);
+}
+
+.botao--perigo-suave:hover:not(:disabled) {
+  background: var(--perigo-tenue);
+}
+
+.botao--texto {
+  background: transparent;
+  color: var(--tinta-suave);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  min-height: 44px;
+}
+
+.botao--texto:hover:not(:disabled) {
+  color: var(--tinta);
+}
+
+.botao--grande {
+  min-width: 160px;
+  min-height: 52px;
+  font-size: 1.02rem;
+}
+
+/* Alvos compactos continuam em 44px: são Editar/Excluir de cada tarefa. */
+.botao--compacto {
+  min-height: 44px;
+  padding: 0 12px;
+  font-size: 0.9rem;
+}
+
+/* ---------- Presets ---------- */
+
+.presets {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+}
+
+.preset {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-controle);
+  background: var(--superficie);
+}
+
+/* Em uso: borda de acento mais a etiqueta. Sem faixa lateral, que só repetia. */
+.preset--em-uso {
+  border-color: var(--acento);
+}
+
+.preset__cabecalho {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.preset__nome {
+  font-family: var(--serifa);
+  font-size: 1.1rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.preset__parametros {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+  margin: 0;
+}
+
+/* Rótulo pequeno em caixa de frase: peso e cor fazem a hierarquia. */
+.preset__parametros dt {
+  font-size: 0.8rem;
+  color: var(--tinta-suave);
+}
+
+.preset__parametros dd {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.preset__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.preset__acoes .botao {
+  flex: 1 1 auto;
+}
+
+.preset__aviso {
+  font-size: 0.85rem;
+  color: var(--tinta-suave);
+}
+
+/* ---------- Etiquetas ---------- */
+
+/* Uma etiqueta só, com borda e texto. Estado e prioridade se distinguem pelo
+   texto; a cor entra apenas onde muda o significado (concluída, cancelada). */
+.etiqueta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: var(--raio-etiqueta);
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  background: transparent;
+  color: var(--tinta-suave);
+  border: 1px solid var(--borda-controle);
+}
+
+.etiqueta--concluida {
+  color: var(--sucesso);
+  border-color: var(--sucesso);
+}
+
+.etiqueta--cancelada {
+  color: var(--tinta-suave);
+  border-style: dashed;
+  text-decoration: line-through;
+}
+
+.etiqueta--emExecucao {
+  color: var(--tinta);
+  border-color: var(--tinta);
+}
+
+.etiqueta--alta {
+  color: var(--tinta);
+  border-color: var(--tinta);
+  font-weight: 700;
+}
+
+/* "Em uso" no preset: mesma aparência da prioridade alta, distinta pelo texto. */
+.etiqueta--ativa {
+  color: var(--tinta);
+  border-color: var(--tinta);
+  font-weight: 700;
+}
+
+/* ---------- Banner de sessão ---------- */
+
+.banner {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--raio-controle);
+  margin-bottom: 16px;
+  font-size: 0.95rem;
+}
+
+.banner__texto {
+  margin: 0;
+}
+
+.banner--alerta {
+  background: var(--perigo-tenue);
+  border: 1px solid var(--perigo);
+  color: var(--perigo);
+}
+
+.banner--info {
+  background: var(--aviso-tenue);
+  border: 1px solid var(--aviso-borda);
+  color: var(--tinta);
+}
+
+.banner__acoes {
+  display: flex;
+  gap: 8px;
+}
+
+/* ---------- Tarefas ---------- */
+
+/* ---------- Tarefas ---------- */
+
+.tarefas {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.tarefa {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-controle);
+  background: var(--superficie);
+}
+
+.tarefa--concluida,
+.tarefa--cancelada {
+  background: var(--superficie-suave);
+}
+
+.tarefa--concluida .tarefa__titulo,
+.tarefa--cancelada .tarefa__titulo {
+  color: var(--tinta-suave);
+}
+
+.tarefa__titulo {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.tarefa__etiquetas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.tarefa__acoes {
+  display: flex;
+  gap: 8px;
+}
+
+/* ---------- Formulários e diálogos ---------- */
+
+/* Única sombra do app: o diálogo é o único elemento acima da página. */
+.dialogo {
+  border: 1px solid var(--borda-controle);
+  border-radius: var(--raio-cartao);
+  padding: 0;
+  width: min(520px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  background: var(--superficie);
+  color: var(--tinta);
+  box-shadow: 0 18px 48px rgb(0 0 0 / 0.28);
+}
+
+.dialogo::backdrop {
+  background: rgb(16 13 10 / 0.55);
+}
+
+.dialogo__conteudo {
+  padding: 22px;
+}
+
+.dialogo__titulo {
+  font-family: var(--serifa);
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.dialogo__titulo:focus-visible {
+  outline: 3px solid var(--acento);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+.dialogo__texto {
+  margin-bottom: 20px;
+}
+
+.dialogo__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Resumo de erros: primeiro elemento focável do formulário quando falha. */
+.resumo-erros {
+  border: 1px solid var(--perigo);
+  background: var(--perigo-tenue);
+  color: var(--perigo);
+  border-radius: var(--raio-controle);
+  padding: 12px 14px;
+  font-size: 0.95rem;
+}
+
+.resumo-erros:focus-visible {
+  outline: 3px solid var(--perigo);
+  outline-offset: 2px;
+}
+
+.resumo-erros ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+
+.formulario__grade {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 480px) {
+  .formulario__grade {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.campo__rotulo {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.campo input,
+.campo select {
+  font: inherit;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--borda-controle);
+  border-radius: var(--raio-controle);
+  background: var(--superficie);
+  color: var(--tinta);
+  width: 100%;
+}
+
+.campo input:focus-visible,
+.campo select:focus-visible {
+  outline: 3px solid var(--acento);
+  outline-offset: 1px;
+}
+
+.campo--invalido input,
+.campo--invalido select,
+.campo input[aria-invalid='true'],
+.campo select[aria-invalid='true'] {
+  border-color: var(--perigo);
+  border-width: 2px;
+  background: var(--perigo-tenue);
+}
+
+/* Erro com marcador textual: cor não é o único sinal. */
+.campo__erro {
+  display: flex;
+  gap: 6px;
+  color: var(--perigo);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.campo__erro::before {
+  content: 'Erro:';
+  font-weight: 700;
+}
+
+/* ---------- Rodapé ---------- */
+
+.rodape {
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1px solid var(--borda);
+  text-align: center;
+  color: var(--tinta-suave);
+  font-size: 0.85rem;
+}
+
+/* ---------- Movimento ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- Telas pequenas ---------- */
+
+@media (max-width: 480px) {
+  .app {
+    padding: 14px 12px 32px;
+  }
+
+  .cartao {
+    padding: 16px;
+  }
+
+  .botao--grande {
+    flex: 1 1 100%;
+  }
+
+  .controles .botao:not(.botao--grande) {
+    flex: 1 1 calc(50% - 10px);
+  }
+
+  .temporizador__tempo {
+    font-size: clamp(2.5rem, 19vw, 5rem);
+  }
+}
+
+/* Forced colors: bordas e marcas dependem do sistema, não da paleta. */
+@media (forced-colors: active) {
+  .cartao,
+  .preset,
+  .tarefa,
+  .dialogo,
+  .campo input,
+  .campo select {
+    border: 1px solid CanvasText;
+  }
+
+  .progresso__barra,
+  .marca-ciclo--feita {
+    background: Highlight;
+  }
+
+  .temporizador__fase-marca {
+    background: CanvasText;
+  }
+}

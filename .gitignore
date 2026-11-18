@@ -1,0 +1,14 @@
+# dependências e build
+node_modules/
+dist/
+
+# logs e arquivos locais
+*.log
+npm-debug.log*
+.env*.local
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/
+coverage/
+*.tsbuildinfo
