@@ -167,11 +167,11 @@ Alguns pontos do documento são ambíguos ou se contradizem. A equipe adotou as 
 
 | Papel | Integrante | Responsabilidades |
 |-------|-----------|-------------------|
-| Líder | [nome] | Coordenação, revisão de Pull Requests, README e entrega final |
-| Desenvolvimento do domínio e persistência | [nome] | `src/dominio`, `src/persistencia`, regras RN-01 a RN-11 |
-| Desenvolvimento da interface | [nome] | `src/componentes`, `App.tsx`, layout responsivo e acessibilidade |
-| Testes e qualidade | [nome] | Suíte de testes, validação dos critérios de aceite (seção 8) e lint |
-| Documentação e requisitos | [nome] | Matriz de rastreabilidade, README e validação contra o documento |
+| Líder | **BERNARDO PINHO DE PAULA** | Coordenação, revisão de Pull Requests, README e entrega final |
+| Desenvolvimento do domínio e persistência | **DANIEL ALVES CRUZ** | `src/dominio`, `src/persistencia`, regras RN-01 a RN-11 |
+| Desenvolvimento da interface | **PABLO ZAFIRELLI SOARES** | `src/componentes`, `App.tsx`, layout responsivo e acessibilidade |
+| Testes e qualidade | **LUIZ FELIPE SILVEIRA TOMAZ** | Suíte de testes, validação dos critérios de aceite (seção 8) e lint |
+| Documentação e requisitos | **BERNARDO PINHO DE PAULA** | Matriz de rastreabilidade, README e validação contra o documento |
 
-Observação: os membros podem acumular papéis conforme o tamanho da equipe (2 a 4 integrantes).
+Observação: os membros podem acumular papéis conforme o tamanho da equipe (4 integrantes).
 
