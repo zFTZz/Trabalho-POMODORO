@@ -1,12 +1,13 @@
 import type { EstadoTarefa, FasePomodoro, PrioridadeTarefa } from './tipos';
 
 /**
- * Quantidade de ciclos (foco + pausa) que compõem uma sessão completa.
- * O documento exige um status "concluida" (RN-08) mas não define um
- * número de ciclos; adotamos 4 ciclos (o "set" clássico da técnica).
+ * Quantidade de ciclos do preset padrão (o "set" clássico da técnica).
+ * A sessão dura exatamente `ciclosAntesPausaLonga` ciclos do preset: o
+ * documento não define o total, e derivar do preset mantém o parâmetro
+ * significativo para toda a faixa de VR-04 (1 a 12).
  * Ver README - "Decisões técnicas".
  */
-export const CICLOS_POR_SESSAO = 4;
+export const CICLOS_PRESET_PADRAO = 4;
 
 /** Limites de validação (seção 7 - VR-01 a VR-06). */
 export const LIMITES = {
@@ -22,7 +23,7 @@ export const LIMITES = {
 export const VALORES_PADRAO_PRESET = {
   tempoFocoMin: 25,
   tempoPausaCurtaMin: 5,
-  ciclosAntesPausaLonga: 4,
+  ciclosAntesPausaLonga: CICLOS_PRESET_PADRAO,
   tempoPausaLongaMin: 15,
 } as const;
 

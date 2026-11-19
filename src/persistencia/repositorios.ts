@@ -71,7 +71,13 @@ export type CarregamentoSessao =
   | { tipo: 'invalida' };
 
 export function carregarSessao(arm: Armazenamento): CarregamentoSessao {
-  const bruto = arm.ler(CHAVES.sessaoAtiva);
+  let bruto: string | null;
+  try {
+    bruto = arm.ler(CHAVES.sessaoAtiva);
+  } catch {
+    // RNF-06 / R-03: falha de leitura não pode derrubar a inicialização.
+    return { tipo: 'invalida' };
+  }
   if (bruto === null) return { tipo: 'vazia' };
   try {
     const sessao = validarSessaoPersistida(JSON.parse(bruto));

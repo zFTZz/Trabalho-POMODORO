@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CICLOS_POR_SESSAO, ROTULO_FASE } from '../dominio/constantes';
+import { ROTULO_FASE } from '../dominio/constantes';
 import { duracaoFaseMs, rotuloStatusSessao, tempoRestanteMs } from '../dominio/sessao';
 import type { SessaoAtiva } from '../dominio/tipos';
 import { formatarTempo } from '../utils';
@@ -63,7 +63,7 @@ export function TemporizadorSessao({
       </div>
 
       <p className="temporizador__ciclo">
-        Ciclo {sessao.cicloAtual} de {CICLOS_POR_SESSAO} · {sessao.snapshotPreset.nome}
+        Ciclo {sessao.cicloAtual} de {sessao.snapshotPreset.ciclosAntesPausaLonga} · {sessao.snapshotPreset.nome}
       </p>
 
       <div className="controles">

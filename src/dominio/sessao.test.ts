@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { CICLOS_POR_SESSAO } from './constantes';
 import {
   avancarAteAgora,
   criarSessao,
@@ -103,13 +102,13 @@ describe('pular fase (UC06, RN-03)', () => {
   });
 
   it('pular a última fase antes da conclusão encerra a sessão (UC06 fluxo alternativo)', () => {
-    // avanço natural até a pausa longa do último ciclo (7 transições)
+    // avanço natural até a pausa longa do último ciclo do preset (7 transições)
     let s = novaSessao();
-    for (let i = 0; i < CICLOS_POR_SESSAO * 2 - 1; i++) {
+    for (let i = 0; i < preset.ciclosAntesPausaLonga * 2 - 1; i++) {
       s = avancarAteAgora(s, s.fimFasePrevistoEm).sessao;
     }
     expect(s.faseAtual).toBe('pausaLonga');
-    expect(s.cicloAtual).toBe(CICLOS_POR_SESSAO);
+    expect(s.cicloAtual).toBe(preset.ciclosAntesPausaLonga);
 
     const concluida = pularFase(s, s.fimFasePrevistoEm - MIN);
     expect(concluida.status).toBe('concluida');
@@ -157,7 +156,9 @@ describe('avanço natural de fases (RF-14, RN-13)', () => {
     let s = novaSessao(preset3);
     const fases: string[] = [];
     for (let i = 0; i < 6; i++) {
-      s = avancarAteAgora(s, s.fimFasePrevistoEm).sessao;
+      const r = avancarAteAgora(s, s.fimFasePrevistoEm);
+      if (r.concluida) break;
+      s = r.sessao;
       fases.push(`${s.faseAtual}:${s.cicloAtual}`);
     }
     expect(fases).toEqual([
@@ -166,14 +167,27 @@ describe('avanço natural de fases (RF-14, RN-13)', () => {
       'pausaCurta:2',
       'foco:3',
       'pausaLonga:3',
-      'foco:4',
     ]);
+  });
+
+  it('sessão com preset de 6 ciclos só conclui após a pausa longa do ciclo 6', () => {
+    const preset6: Preset = { ...preset, ciclosAntesPausaLonga: 6 };
+    let s = novaSessao(preset6);
+    for (let i = 0; i < preset6.ciclosAntesPausaLonga * 2 - 1; i++) {
+      s = avancarAteAgora(s, s.fimFasePrevistoEm).sessao;
+    }
+    expect(s.faseAtual).toBe('pausaLonga');
+    expect(s.cicloAtual).toBe(6);
+
+    const r = avancarAteAgora(s, s.fimFasePrevistoEm);
+    expect(r.concluida).toBe(true);
+    expect(r.sessao.status).toBe('concluida');
   });
 
   it('a sessão conclui após o último intervalo do último ciclo (RN-08)', () => {
     const s = novaSessao();
     let r = { sessao: s, fasesAvancadas: 0, concluida: false };
-    for (let i = 0; i < CICLOS_POR_SESSAO * 2; i++) {
+    for (let i = 0; i < preset.ciclosAntesPausaLonga * 2; i++) {
       r = avancarAteAgora(r.sessao, r.sessao.fimFasePrevistoEm);
     }
     expect(r.concluida).toBe(true);

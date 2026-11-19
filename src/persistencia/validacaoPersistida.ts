@@ -3,7 +3,7 @@
  * Dados armazenados podem estar corrompidos ou ter sido editados manualmente,
  * então cada registro é verificado antes de entrar no domínio.
  */
-import { CICLOS_POR_SESSAO, LIMITES } from '../dominio/constantes';
+import { LIMITES } from '../dominio/constantes';
 import type { FasePomodoro, Preset, SessaoAtiva, SnapshotPreset, StatusSessao, Tarefa } from '../dominio/tipos';
 import { ESTADOS_TAREFA, PRIORIDADES_TAREFA } from '../dominio/validacao';
 
@@ -87,7 +87,7 @@ export function validarSessaoPersistida(valor: unknown): SessaoAtiva | null {
   const snapshot = valor.snapshotPreset;
 
   if (!ehPertencente(valor.faseAtual, FASES) || !ehPertencente(valor.status, STATUS)) return null;
-  if (!ehInteiroNoIntervalo(valor.cicloAtual, { min: 1, max: CICLOS_POR_SESSAO })) return null;
+  if (!ehInteiroNoIntervalo(valor.cicloAtual, { min: 1, max: snapshot.ciclosAntesPausaLonga })) return null;
   if (!ehTimestamp(valor.inicioFaseEm) || !ehTimestamp(valor.fimFasePrevistoEm)) return null;
   if (!ehTimestamp(valor.criadaEm) || !ehTimestamp(valor.atualizadaEm)) return null;
 

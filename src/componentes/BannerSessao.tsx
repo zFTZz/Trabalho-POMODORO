@@ -17,7 +17,7 @@ export function BannerSessao({ origem, onDescartar, onOcultar }: BannerSessaoPro
     return (
       <section className="banner banner--alerta" aria-label="Sessão salva inconsistente">
         <p className="banner__texto">
-          Os dados da sessão salva estão inconsistentes e não puderam ser restaurados.
+          Os dados da sessão salva estão inconsistentes ou não puderam ser lidos.
         </p>
         <div className="banner__acoes">
           <button type="button" className="botao botao--perigo" onClick={onDescartar}>

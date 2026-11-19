@@ -3,6 +3,7 @@ import type { Preset, SessaoAtiva, Tarefa } from '../dominio/tipos';
 import { criarSessao, pausarSessao } from '../dominio/sessao';
 import {
   CHAVES,
+  criarArmazenamentoDoNavegador,
   criarArmazenamentoLocal,
   ErroPersistencia,
   carregarPresets,
@@ -155,11 +156,29 @@ describe('sessão ativa (RF-12, RNF-02, R-03)', () => {
     expect(carregarSessao(arm)).toEqual({ tipo: 'invalida' });
   });
 
+  it('ciclo além do total de ciclos do snapshot é inconsistente', () => {
+    const arm = armazenamento();
+    const s = criarSessao(preset, T0, 's1');
+    arm.storage.setItem(CHAVES.sessaoAtiva, JSON.stringify({ ...s, cicloAtual: s.snapshotPreset.ciclosAntesPausaLonga + 1 }));
+    expect(carregarSessao(arm)).toEqual({ tipo: 'invalida' });
+  });
+
   it('remoção limpa a chave', () => {
     const arm = armazenamento();
     salvarSessao(arm, criarSessao(preset, T0, 's1'));
     removerSessao(arm);
     expect(carregarSessao(arm)).toEqual({ tipo: 'vazia' });
+  });
+
+  it('falha de leitura é tratada como sessão inválida, sem exceção (RNF-06)', () => {
+    const arm: Armazenamento = {
+      ler() {
+        throw new ErroPersistencia('armazenamento bloqueado');
+      },
+      gravar() {},
+      remover() {},
+    };
+    expect(carregarSessao(arm)).toEqual({ tipo: 'invalida' });
   });
 });
 
@@ -172,5 +191,23 @@ describe('falhas de gravação (RNF-06)', () => {
     const arm = criarArmazenamentoLocal(storage);
     expect(() => arm.gravar('x', 'y')).toThrow(ErroPersistencia);
     expect(() => arm.gravar('x', 'y')).toThrow(/armazenamento pode estar cheio/);
+  });
+
+  it('acesso bloqueado a window.localStorage não derruba a inicialização', () => {
+    const original = Object.getOwnPropertyDescriptor(window, 'localStorage');
+    Object.defineProperty(window, 'localStorage', {
+      configurable: true,
+      get() {
+        throw new DOMException('bloqueado', 'SecurityError');
+      },
+    });
+    try {
+      const arm = criarArmazenamentoDoNavegador();
+      expect(() => arm.ler('x')).toThrow(ErroPersistencia);
+      expect(() => arm.gravar('x', 'y')).toThrow(ErroPersistencia);
+      expect(() => arm.remover('x')).toThrow(ErroPersistencia);
+    } finally {
+      if (original) Object.defineProperty(window, 'localStorage', original);
+    }
   });
 });

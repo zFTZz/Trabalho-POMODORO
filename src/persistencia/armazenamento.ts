@@ -52,3 +52,22 @@ export function criarArmazenamentoLocal(storage: Storage): Armazenamento {
     },
   };
 }
+
+/**
+ * Obtém o Local Storage do navegador sem deixar o app quebrar quando o acesso
+ * à propriedade é bloqueado (política corporativa, storage desativado).
+ * As operações passam a falhar com `ErroPersistencia`, que a interface reporta
+ * (RNF-06), em vez de derrubar a renderização.
+ */
+export function criarArmazenamentoDoNavegador(): Armazenamento {
+  try {
+    return criarArmazenamentoLocal(window.localStorage);
+  } catch {
+    const falhar = (): never => {
+      throw new ErroPersistencia(
+        'O armazenamento deste navegador está bloqueado. Os dados não podem ser lidos nem salvos.',
+      );
+    };
+    return { ler: falhar, gravar: falhar, remover: falhar };
+  }
+}

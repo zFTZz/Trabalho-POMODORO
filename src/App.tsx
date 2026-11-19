@@ -18,7 +18,7 @@ import { usePresets } from './hooks/usePresets';
 import { useSessaoAtiva } from './hooks/useSessaoAtiva';
 import { useTarefas } from './hooks/useTarefas';
 import { useTema } from './hooks/useTema';
-import { criarArmazenamentoLocal } from './persistencia';
+import { criarArmazenamentoDoNavegador } from './persistencia';
 import { formatarTempo, gerarId } from './utils';
 
 type DialogoPreset = { modo: 'novo' } | { modo: 'editar'; preset: Preset };
@@ -45,7 +45,7 @@ function avisosDeCarregamento(
 }
 
 export default function App() {
-  const arm = useMemo(() => criarArmazenamentoLocal(window.localStorage), []);
+  const arm = useMemo(() => criarArmazenamentoDoNavegador(), []);
 
   const [avisos, setAvisos] = useState<Aviso[]>([]);
   const notificar = useCallback<Notificar>((tipo, texto) => {

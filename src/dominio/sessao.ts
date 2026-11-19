@@ -6,7 +6,7 @@
  * em memória, o que permite recalcular a sessão após reabertura do navegador
  * (RNF-03) e torna o comportamento testável.
  */
-import { CICLOS_POR_SESSAO, MS_POR_MINUTO } from './constantes';
+import { MS_POR_MINUTO } from './constantes';
 import type { FasePomodoro, Preset, SessaoAtiva, SnapshotPreset, StatusSessao } from './tipos';
 
 /** Duração, em milissegundos, de uma fase segundo o snapshot da sessão. */
@@ -39,12 +39,14 @@ export interface ProximaFase {
 /**
  * Transição quando o tempo da fase se esgota.
  * Uma pausa que termina completa o ciclo e incrementa a contagem.
+ * A sessão dura os `ciclosAntesPausaLonga` ciclos do snapshot, terminando
+ * na pausa longa do último ciclo (RN-08).
  */
 export function proximaFaseAoTerminar(snapshot: SnapshotPreset, fase: FasePomodoro, ciclo: number): ProximaFase {
   if (fase === 'foco') {
     return { fase: faseDePausaDoCiclo(snapshot, ciclo), ciclo, concluida: false };
   }
-  if (ciclo >= CICLOS_POR_SESSAO) {
+  if (ciclo >= snapshot.ciclosAntesPausaLonga) {
     return { fase, ciclo, concluida: true };
   }
   return { fase: 'foco', ciclo: ciclo + 1, concluida: false };
@@ -59,7 +61,7 @@ export function proximaFaseAoPular(snapshot: SnapshotPreset, fase: FasePomodoro,
   if (fase === 'foco') {
     return { fase: faseDePausaDoCiclo(snapshot, ciclo), ciclo, concluida: false };
   }
-  if (ciclo >= CICLOS_POR_SESSAO) {
+  if (ciclo >= snapshot.ciclosAntesPausaLonga) {
     return { fase, ciclo, concluida: true };
   }
   return { fase: 'foco', ciclo, concluida: false };

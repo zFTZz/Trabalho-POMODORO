@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { tocarAlertaFim } from '../audio/alerta';
-import { CICLOS_POR_SESSAO, ROTULO_FASE } from '../dominio/constantes';
+import { ROTULO_FASE } from '../dominio/constantes';
 import {
   avancarAteAgora,
   criarSessao,
@@ -70,7 +70,7 @@ function mensagemTransicao(sessao: SessaoAtiva): string {
   const duracao = Math.round(duracaoFaseMs(sessao.snapshotPreset, sessao.faseAtual) / 60_000);
   switch (sessao.faseAtual) {
     case 'foco':
-      return `Pausa encerrada. Hora de focar no ciclo ${sessao.cicloAtual} de ${CICLOS_POR_SESSAO}.`;
+      return `Pausa encerrada. Hora de focar no ciclo ${sessao.cicloAtual} de ${sessao.snapshotPreset.ciclosAntesPausaLonga}.`;
     case 'pausaCurta':
       return `Foco concluído! Pausa curta de ${duracao} min.`;
     case 'pausaLonga':
@@ -117,7 +117,7 @@ export function useSessaoAtiva(arm: Armazenamento, notificar: Notificar) {
         gravarSessao(arm, null, notificar);
         setSessao(null);
         setOrigem(null);
-        notificar('sucesso', `Sessão concluída! Você completou os ${CICLOS_POR_SESSAO} ciclos.`);
+        notificar('sucesso', `Sessão concluída! Você completou os ${resultado.sessao.snapshotPreset.ciclosAntesPausaLonga} ciclos.`);
       } else {
         gravarSessao(arm, resultado.sessao, notificar);
         setSessao(resultado.sessao);
@@ -153,7 +153,7 @@ export function useSessaoAtiva(arm: Armazenamento, notificar: Notificar) {
         gravarSessao(arm, null, notificar);
         setSessao(null);
         setOrigem(null);
-        notificar('sucesso', `Sessão concluída! Você completou os ${CICLOS_POR_SESSAO} ciclos.`);
+        notificar('sucesso', `Sessão concluída! Você completou os ${nova.snapshotPreset.ciclosAntesPausaLonga} ciclos.`);
         return;
       }
       gravarSessao(arm, nova, notificar);
