@@ -38,30 +38,32 @@ export interface ProximaFase {
 
 /**
  * Transição quando o tempo da fase se esgota.
- * Uma pausa que termina completa o ciclo e incrementa a contagem.
- * A sessão dura os `ciclosAntesPausaLonga` ciclos do snapshot, terminando
- * na pausa longa do último ciclo (RN-08).
+ * O ciclo é contabilizado assim que o foco termina: a pausa seguinte já
+ * pertence ao próximo ciclo, então o contador muda no fim do foco, e não
+ * apenas quando a pausa acaba. A sessão dura os `ciclosAntesPausaLonga`
+ * ciclos do snapshot, terminando na pausa longa do último ciclo (RN-08).
  */
 export function proximaFaseAoTerminar(snapshot: SnapshotPreset, fase: FasePomodoro, ciclo: number): ProximaFase {
   if (fase === 'foco') {
-    return { fase: faseDePausaDoCiclo(snapshot, ciclo), ciclo, concluida: false };
+    const proximoCiclo = ciclo >= snapshot.ciclosAntesPausaLonga ? ciclo : ciclo + 1;
+    return { fase: faseDePausaDoCiclo(snapshot, ciclo), ciclo: proximoCiclo, concluida: false };
   }
-  if (ciclo >= snapshot.ciclosAntesPausaLonga) {
+  if (fase === 'pausaLonga') {
     return { fase, ciclo, concluida: true };
   }
-  return { fase: 'foco', ciclo: ciclo + 1, concluida: false };
+  return { fase: 'foco', ciclo, concluida: false };
 }
 
 /**
- * Transição manual (RF-08 / UC06). Pular uma fase NÃO altera a contagem
- * de ciclos (RN-03), por isso a fase de foco seguinte a uma pausa pulada
- * mantém o mesmo número de ciclo.
+ * Transição manual (RF-08 / UC06). Pular o foco NÃO contabiliza o ciclo
+ * (RN-03): a pausa é exibida com o ciclo atual. Pular a pausa leva ao foco
+ * do ciclo já contabilizado; se for a pausa longa final, conclui a sessão.
  */
 export function proximaFaseAoPular(snapshot: SnapshotPreset, fase: FasePomodoro, ciclo: number): ProximaFase {
   if (fase === 'foco') {
     return { fase: faseDePausaDoCiclo(snapshot, ciclo), ciclo, concluida: false };
   }
-  if (ciclo >= snapshot.ciclosAntesPausaLonga) {
+  if (fase === 'pausaLonga') {
     return { fase, ciclo, concluida: true };
   }
   return { fase: 'foco', ciclo, concluida: false };

@@ -1,6 +1,6 @@
-import { cleanup, render, screen, within } from '@testing-library/react';
+import { act, cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
 import { CHAVES } from './persistencia';
 import type { Preset, SessaoAtiva, Tarefa } from './dominio/tipos';
@@ -204,6 +204,28 @@ describe('sessão de foco (UC04, UC05, RN-01, RN-05)', () => {
     await usuario.click(screen.getByRole('button', { name: 'Reiniciar ciclos' }));
     await usuario.click(within(obterDialogoAberto()).getByRole('button', { name: 'Reiniciar' }));
     expect(screen.getByText(/Ciclo 1 de 4/)).toBeInTheDocument();
+  });
+
+  it('o ciclo muda quando o foco termina, mesmo antes de a pausa acabar (RF-14)', () => {
+    vi.useFakeTimers();
+    try {
+      const rapido: Preset = { ...presetBase, tempoFocoMin: 1 };
+      persistirPresets([rapido]);
+      const inicio = Date.now() - 30_000; // metade do foco de 1 min
+      localStorage.setItem(CHAVES.sessaoAtiva, JSON.stringify(sessaoDe(rapido, {}, inicio)));
+
+      render(<App />);
+      expect(screen.getByText(/Ciclo 1 de 4/)).toBeInTheDocument();
+
+      act(() => {
+        vi.advanceTimersByTime(31_000);
+      });
+
+      expect(screen.getByText(/Pausa curta/, { selector: '.temporizador__fase' })).toBeInTheDocument();
+      expect(screen.getByText(/Ciclo 2 de 4/)).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
 

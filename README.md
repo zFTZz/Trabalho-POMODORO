@@ -137,7 +137,7 @@ A separação segue o requisito RNF-09: **domínio** (regras), **persistência**
 
 1. **Quantidade de ciclos por sessão.** O documento exige o status `concluida` (RN-08 e UC10), mas não define quantos ciclos formam uma sessão. Adotamos que a sessão é um set completo do preset: dura exatamente `ciclosAntesPausaLonga` ciclos e termina na pausa longa do último ciclo. Assim o parâmetro de VR-04 (1 a 12) sempre tem efeito, e o preset padrão usa 4 ciclos, o "conjunto" clássico da técnica. O total vem do snapshot da sessão, então segue imune a edições posteriores (RN-05).
 
-2. **Contagem de ciclos com pulos (RN-03).** O ciclo só avança quando uma pausa termina naturalmente. Pular fases nunca altera a contagem. Consequência: pular uma pausa retorna ao foco do mesmo ciclo, e não ao início do próximo. Foi a leitura literal de RN-03.
+2. **Contagem de ciclos e pulos (RN-03).** O ciclo é contabilizado assim que o foco termina: a pausa seguinte já pertence ao próximo ciclo, então o contador muda no fim do foco, sem esperar a pausa acabar. Pular o foco não contabiliza o ciclo (RN-03); pular uma pausa mantém a contagem já obtida e inicia o foco do ciclo corrente. A pausa longa do último ciclo encerra a sessão (RN-08).
 
 3. **Conflito entre RF-19 e RN-10 na ordem dos estados.** O RF-19 lista `backlog, a fazer, em execução, concluída, cancelada`, enquanto o RN-10 (referenciado por RF-18, RF-19 e UC15) define `a fazer, em execução, concluída, cancelada, backlog`. **Adotamos a ordem do RN-10**, por ser a regra de negócio explícita e a referência dos casos de uso.
 
@@ -157,7 +157,7 @@ A separação segue o requisito RNF-09: **domínio** (regras), **persistência**
 
 ## Verificação
 
-- **Testes automatizados:** 71 testes (regras de sessão, validações, ordenação, persistência e fluxos de interface), executados com `npm test`.
+- **Testes automatizados:** 72 testes (regras de sessão, validações, ordenação, persistência e fluxos de interface), executados com `npm test`.
 - **Mutação de controle:** ao quebrar propositalmente o recálculo por timestamps (RN-07), três testes de domínio falharam, o que confirma a cobertura da regra.
 - **Build e lint:** `npm run build` e `npm run lint` passam sem erros.
 - **Navegador real (Chromium headless):** fluxo completo verificado (criar temporizador e tarefas, iniciar, pausar e retomar) sem erros de console. Layout confirmado em desktop (1366 px) e celular (390 px), sem rolagem horizontal.

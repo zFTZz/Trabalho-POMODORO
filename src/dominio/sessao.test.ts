@@ -140,11 +140,11 @@ describe('reiniciar ciclos (UC07, RN-04)', () => {
 });
 
 describe('avanço natural de fases (RF-14, RN-13)', () => {
-  it('ao fim do foco, entra na pausa curta; ao fim da pausa, inicia o ciclo seguinte', () => {
+  it('o ciclo avança ao fim do foco e a pausa já pertence ao próximo ciclo', () => {
     const r1 = avancarAteAgora(novaSessao(), T0 + 25 * MIN);
     expect(r1.fasesAvancadas).toBe(1);
     expect(r1.sessao.faseAtual).toBe('pausaCurta');
-    expect(r1.sessao.cicloAtual).toBe(1);
+    expect(r1.sessao.cicloAtual).toBe(2);
 
     const r2 = avancarAteAgora(r1.sessao, r1.sessao.fimFasePrevistoEm);
     expect(r2.sessao.faseAtual).toBe('foco');
@@ -162,9 +162,9 @@ describe('avanço natural de fases (RF-14, RN-13)', () => {
       fases.push(`${s.faseAtual}:${s.cicloAtual}`);
     }
     expect(fases).toEqual([
-      'pausaCurta:1',
-      'foco:2',
       'pausaCurta:2',
+      'foco:2',
+      'pausaCurta:3',
       'foco:3',
       'pausaLonga:3',
     ]);
