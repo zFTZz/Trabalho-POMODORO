@@ -171,9 +171,18 @@ export default function App() {
       </a>
 
       <header className="cabecalho">
-        <div className="cabecalho__texto">
-          <h1 className="cabecalho__titulo">Foco Pomodoro</h1>
-          <p className="cabecalho__subtitulo">Organize seus ciclos de estudo entre foco e pausa.</p>
+        <div className="cabecalho__marca">
+          <img
+            className="cabecalho__icone"
+            src="/icone-pomodoro.png"
+            alt=""
+            width={58}
+            height={48}
+          />
+          <div className="cabecalho__texto">
+            <h1 className="cabecalho__titulo">Foco Pomodoro</h1>
+            <p className="cabecalho__subtitulo">Organize seus ciclos de estudo entre foco e pausa.</p>
+          </div>
         </div>
         <div className="cabecalho__ferramentas">
           <BotaoTema tema={tema} onAlternar={alternarTema} />

@@ -186,10 +186,25 @@ textarea {
   margin-bottom: 20px;
 }
 
+.cabecalho__marca {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.cabecalho__icone {
+  display: block;
+  flex: none;
+  height: 48px;
+  width: auto;
+}
+
 .cabecalho__texto {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 
 /* Serifa nos títulos: é o que dá voz de caderno ao app. */
@@ -1025,6 +1040,10 @@ textarea {
 @media (max-width: 480px) {
   .app {
     padding: 14px 12px 32px;
+  }
+
+  .cabecalho__icone {
+    height: 40px;
   }
 
   .cartao {

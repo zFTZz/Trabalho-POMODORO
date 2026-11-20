@@ -50,6 +50,7 @@ Trabalho da disciplina **Desenvolvimento Web (DevWeb)**, seguindo o *Documento d
 - Interface em português, sem seletor de idioma.
 - Layout responsivo: no desktop, o painel de tarefas fica à direita do temporizador; no celular, o painel é reorganizado logo abaixo do temporizador.
 - Controles acessíveis por teclado, com rótulos semânticos, diálogos modais nativos (`<dialog>`) e foco visível.
+- Ícone próprio na aba do navegador (favicon) e no cabeçalho, com versão para atalho na tela inicial (Apple touch icon).
 
 **Fora do escopo** (conforme o documento): autenticação, backend, sincronização, notificações do navegador, filtros, subtarefas, analytics e internacionalização.
 
@@ -86,6 +87,11 @@ DevWeb/Pomodoro/
 ├── vite.config.ts           # build, dev server e configuração do Vitest
 ├── tsconfig*.json           # TypeScript estrito (app e configs de build)
 ├── eslint.config.js
+├── public/                  # favicon e ícone do app
+│   ├── favicon.png
+│   ├── favicon-32.png
+│   ├── apple-touch-icon.png
+│   └── icone-pomodoro.png
 └── src/
     ├── dominio/             # regras de negócio puras (sem React, sem storage)
     │   ├── tipos.ts         # modelo conceitual (seção 11 do documento)
